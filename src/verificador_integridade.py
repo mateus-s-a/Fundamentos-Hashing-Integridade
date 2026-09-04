@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import argparse
 from _typeshed import _type_checker_internals
