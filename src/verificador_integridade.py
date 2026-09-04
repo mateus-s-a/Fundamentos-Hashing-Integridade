@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-import argparse
-import argparse
-from _typeshed import _type_checker_internals
-from _typeshed import _type_checker_internals
 import os
 import sys
 import hashlib
