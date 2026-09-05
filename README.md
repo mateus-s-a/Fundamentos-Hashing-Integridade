@@ -45,7 +45,7 @@ Fundamentos-Hashing-Integridade/
 │   └── usuarios.txt                           # Base de usuários gerada dinamicamente
 │
 ├── tests/                                     # Suite de testes automatizados
-│   └── test_scripts_fase2.py                  # Testes unitários e de integração CLI
+│   └── test_scripts.py                        # Testes unitários e de integração CLI
 │
 └── README.md                                  # Documentação técnica central
 ```
