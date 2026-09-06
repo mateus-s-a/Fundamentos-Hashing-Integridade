@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import subprocess
 import hashlib
+import sys
 
 
 class TestFase2Scripts(unittest.TestCase):
@@ -35,12 +36,12 @@ class TestFase2Scripts(unittest.TestCase):
         script = os.path.join(self.src_dir, "verificador_integridade.py")
 
         # 1. Gerar base
-        res_gerar = subprocess.run(["python3", script, pasta_alvo, "--base", hashes_base], capture_output=True, text=True)
+        res_gerar = subprocess.run([sys.executable, script, pasta_alvo, "--base", hashes_base], capture_output=True, text=True)
         self.assertEqual(res_gerar.returncode, 0)
         self.assertTrue(os.path.exists(hashes_base))
 
         # 2. Verificar inalterado
-        res_verif1 = subprocess.run(["python3", script, pasta_alvo, "--verificar", "--base", hashes_base], capture_output=True, text=True)
+        res_verif1 = subprocess.run([sys.executable, script, pasta_alvo, "--verificar", "--base", hashes_base], capture_output=True, text=True)
         self.assertEqual(res_verif1.returncode, 0)
         self.assertIn("Arquivos Inalterados (3)", res_verif1.stdout)
 
@@ -50,7 +51,7 @@ class TestFase2Scripts(unittest.TestCase):
         arq4 = os.path.join(pasta_alvo, "arq4.txt")
         with open(arq4, "w") as f: f.write("Conteudo 4 NOVO")
 
-        res_verif2 = subprocess.run(["python3", script, pasta_alvo, "--verificar", "--base", hashes_base], capture_output=True, text=True)
+        res_verif2 = subprocess.run([sys.executable, script, pasta_alvo, "--verificar", "--base", hashes_base], capture_output=True, text=True)
         self.assertIn("Arquivos Novos (1)", res_verif2.stdout)
         self.assertIn("Arquivos Removidos (1)", res_verif2.stdout)
         self.assertIn("Arquivos Modificados (1)", res_verif2.stdout)
@@ -72,7 +73,7 @@ class TestFase2Scripts(unittest.TestCase):
             f.write(f"{h_admin}\n{h_desconhecido}\n")
         
         script = os.path.join(self.src_dir, "quebra_sem_salt.py")
-        res = subprocess.run(["python3", script, hashes_path, dict_path], capture_output=True, text=True)
+        res = subprocess.run([sys.executable, script, hashes_path, dict_path], capture_output=True, text=True)
         self.assertEqual(res.returncode, 0)
         self.assertIn(f"{h_admin}:admin", res.stdout)
         self.assertIn(f"{h_desconhecido}:NAO_ENCONTRADA", res.stdout)
@@ -84,12 +85,12 @@ class TestFase2Scripts(unittest.TestCase):
         script = os.path.join(self.src_dir, "cadastro_verificacao.py")
 
         # 1. Cadastrar
-        res_cad1 = subprocess.run(["python3", script, "--cadastrar", "user1", "SenhaSegura1", "--arquivo", db_path], capture_output=True, text=True)
+        res_cad1 = subprocess.run([sys.executable, script, "--cadastrar", "user1", "SenhaSegura1", "--arquivo", db_path], capture_output=True, text=True)
         self.assertEqual(res_cad1.returncode, 0)
         self.assertTrue(os.path.exists(db_path))
 
         # Cadastrar segundo usuário com mesma senha para conferir 'salt' distinto
-        res_cad2 = subprocess.run(["python3", script, "--cadastrar", "user2", "SenhaSegura1", "--arquivo", db_path], capture_output=True, text=True)
+        res_cad2 = subprocess.run([sys.executable, script, "--cadastrar", "user2", "SenhaSegura1", "--arquivo", db_path], capture_output=True, text=True)
         self.assertEqual(res_cad2.returncode, 0)
 
         with open(db_path) as f:
@@ -102,11 +103,11 @@ class TestFase2Scripts(unittest.TestCase):
         self.assertNotEqual(h1, h2)
 
         # 2. Verificar sucesso
-        res_login_ok = subprocess.run(["python3", script, "--verificar", "user1", "SenhaSegura1", "--arquivo", db_path], capture_output=True, text=True)
+        res_login_ok = subprocess.run([sys.executable, script, "--verificar", "user1", "SenhaSegura1", "--arquivo", db_path], capture_output=True, text=True)
         self.assertIn("Acesso permitido", res_login_ok.stdout)
 
         # 3. Verificar senha errada
-        res_login_fail = subprocess.run(["python3", script, "--verificar", "user1", "SenhaErrada", "--arquivo", db_path], capture_output=True, text=True)
+        res_login_fail = subprocess.run([sys.executable, script, "--verificar", "user1", "SenhaErrada", "--arquivo", db_path], capture_output=True, text=True)
         self.assertIn("Acesso negado", res_login_fail.stdout)
     
 
@@ -127,7 +128,7 @@ class TestFase2Scripts(unittest.TestCase):
             f.write(f"{salt1.hex()}:{h2}\n")
         
         script = os.path.join(self.src_dir, "quebra_com_salt.py")
-        res = subprocess.run(["python3", script, hashes_path, dict_path], capture_output=True, text=True)
+        res = subprocess.run([sys.executable, script, hashes_path, dict_path], capture_output=True, text=True)
         self.assertEqual(res.returncode, 0)
         self.assertIn(f"{salt1.hex()}:{h1} -> admin", res.stdout)
         self.assertIn(f"{salt1.hex()}:{h2} -> 123456", res.stdout)

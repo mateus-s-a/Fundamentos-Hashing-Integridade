@@ -32,7 +32,7 @@ def carregar_dicionario_senhas(caminho_arquivo):
         for linha in f:
             senha = linha.rstrip("\r\n")
             if senha:
-                senha.append(senha)
+                senhas.append(senha)
     return senhas
 
 

@@ -64,7 +64,7 @@ def cadastrar_usuario(usuario, senha, caminho_arquivo="usuarios.txt"):
 
 
 
-def verificar_autenticacao(usuario, senha, caminho_arquivo="usuarios.txt"):
+def verificar_autenticacao(usuario, senha, caminho_arquivo="dados/usuarios.txt"):
     usuarios = carregar_base_usuarios(caminho_arquivo)
 
     if usuario not in usuarios:

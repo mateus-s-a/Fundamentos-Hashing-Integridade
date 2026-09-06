@@ -47,7 +47,7 @@ def mapear_diretorio(diretorio_alvo, arquivo_hashes_ignorar=None):
             if hash_calculado is not None:
                 hashes_atuais[caminho_padronizado] = hash_calculado
 
-        return hashes_atuais
+    return hashes_atuais
 
 
 
@@ -78,7 +78,7 @@ def carregar_hashes_salvos(caminho_arquivo):
     return hashes_salvos
 
 
-def verificar_integridade(diretorio_alvo, caminho_hashes_base="hashes.txt"):
+def verificar_integridade(diretorio_alvo, caminho_hashes_base="dados/hashes.txt"):
     print(f"[*] Verificando integridade do diretório '{diretorio_alvo}' contra base '{caminho_hashes_base}'...\n")
 
     hashes_salvos = carregar_hashes_salvos(caminho_hashes_base)
@@ -146,7 +146,7 @@ def main():
         description="Verificador de Integridade de Arquivos via SHA-256 (Leitura em Chunks)"
     )
     parser.add_argument(
-        "diretório",
+        "diretorio",
         type=str,
         help="Caminho do diretório a ser mapeado ou verificado"
     )

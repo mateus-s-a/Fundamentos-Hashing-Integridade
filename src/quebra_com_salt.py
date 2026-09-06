@@ -16,7 +16,7 @@ def carregar_dicionario_senhas(caminho_arquivo):
     senhas = []
     with open(caminho_arquivo, "r", encoding="utf-8", errors="ignore") as f:
         for linha in f:
-            senha = linha.rsplit("\r\n")
+            senha = linha.rstrip("\r\n")
             if senha:
                 senhas.append(senha)
     return senhas
