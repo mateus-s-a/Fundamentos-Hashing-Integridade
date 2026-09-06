@@ -7,18 +7,26 @@ Trabalho de Segurança de Sistemas Computacionais.
 > **Dupla de Desenvolvimento:** Mateus & Lorena  
 > **Data de Entrega:** 07/09/2026 até às 23h59  
 
+<br>
+
 ---
+
+<br>
 
 ## Visão Geral da Atividade
 
-Este repositório contém a implementação prática de ferramentas operacionais em Python desenvolvidas para verificação de integridade de sistemas de arquivos, simulação de módulos de autenticação seguros com *salts* criptográficos e análise de robustez de senhas contra ataques de dicionário e força bruta com pré-computação.
+Este repositório contém a implementação prática da atividade da disciplina de **Segurança de Sistemas Computacionais** de ferramentas operacionais em Python desenvolvidas para verificação de integridade de sistemas de arquivos, simulação de módulos de autenticação seguros com *salts* criptográficos e análise de robustez de senhas contra ataques de dicionário e força bruta com pré-computação.
 
-Todo o código foi construído seguindo as restrições rígidas do enunciado do professor:
+Todo o código foi construído seguindo as restrições rígidas do enunciado:
 * **Uso Unitário da Biblioteca `hashlib`:** A biblioteca é empregada exclusivamente para a operação matemática do cálculo de hash (`hashlib.sha256()`). Todas as lógicas de mapeamento, busca, comparação, estruturação de dados e geração de salts são autorais.
 * **Proibição de Ferramentas de Alto Nível:** Não foram utilizadas bibliotecas prontas como `passlib`, `bcrypt` ou softwares externos de cracking (`hashcat`, `john the ripper`).
 * **Eficiência de Memória:** Processamento de arquivos com leitura em blocos (*chunks* de 4 KB), suportando arquivos de grandes dimensões (> 1 GB) sem estouro de memória RAM.
 
+<br>
+
 ---
+
+<br>
 
 ## Estrutura do Repositório
 
@@ -32,7 +40,6 @@ Fundamentos-Hashing-Integridade/
 │   └── Relatorio_Tecnico_Final.pdf            # Relatório técnico final em PDF
 │
 ├── src/                                       # Código-fonte autoral dos scripts
-│   ├── __init__.py
 │   ├── verificador_integridade.py             # Item 2.1: Verificador de integridade de arquivos
 │   ├── quebra_sem_salt.py                     # Item 2.2: Quebra de hashes sem salt
 │   ├── cadastro_verificacao.py                # Item 2.3: Cadastro e login seguro com salt
@@ -50,11 +57,13 @@ Fundamentos-Hashing-Integridade/
 └── README.md                                  # Documentação técnica central
 ```
 
----
-
-## Documentação Detalhada dos Scripts e Funções
+<br>
 
 ---
+
+<br>
+
+## Scripts e Funções
 
 ### 1. `src/verificador_integridade.py` (Item 2.1)
 
@@ -101,7 +110,11 @@ python3 src/verificador_integridade.py ./diretorio_alvo --verificar --base hashe
 * **`main()`**
   * **Objetivo:** Gerencia a interface de linha de comando com `argparse`.
 
+<br>
+
 ---
+
+<br>
 
 ### 2. `src/quebra_sem_salt.py` (Item 2.2)
 
@@ -134,7 +147,11 @@ python3 src/quebra_sem_salt.py massas_de_dados/hashes_sem_salt.txt massas_de_dad
 * **`main()`**
   * **Objetivo:** Orquestra a execução via CLI e apresenta no `stderr` as estatísticas de tempo e taxa de sucesso do ataque.
 
+<br>
+
 ---
+
+<br>
 
 ### 3. `src/cadastro_verificacao.py` (Item 2.3)
 
@@ -181,7 +198,11 @@ python3 src/cadastro_verificacao.py --verificar alice SenhaSegura@2026 --arquivo
 * **`main()`**
   * **Objetivo:** Define o grupo mutuamente exclusivo de argumentos de linha de comando (`--cadastrar` e `--verificar`).
 
+<br>
+
 ---
+
+<br>
 
 ### 4. `src/quebra_com_salt.py` (Item 2.4)
 
@@ -216,7 +237,11 @@ python3 src/quebra_com_salt.py massas_de_dados/hashes_com_salt.txt massas_de_dad
 * **`main()`**
   * **Objetivo:** Entrada CLI e apresentação dos dados de telemetria no `stderr`.
 
+<br>
+
 ---
+
+<br>
 
 ## Testes Automatizados
 
@@ -233,7 +258,11 @@ python3 -m unittest discover tests
 3. **`test_cadastro_verificacao`:** Cadastro de múltiplos usuários com a mesma senha (comprovando salts e hashes resultantes diferentes) e teste de login com credenciais válidas e inválidas.
 4. **`test_quebra_com_salt`:** Validação do ataque contra hashes com salt e verificação do funcionamento do cache de pré-computação.
 
+<br>
+
 ---
+
+<br>
 
 ## Considerações de Segurança
 

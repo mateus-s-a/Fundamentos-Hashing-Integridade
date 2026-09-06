@@ -41,7 +41,7 @@ def quebrar_hashes_sem_salt(caminho_hashes, caminho_dicionario):
     hashes_alvo = carregar_linhas(caminho_hashes)
     senhas_dicionario = carregar_dicionario_senhas(caminho_dicionario)
 
-    # Pré-computação do dicionário em memória para otimização de bsuca O(1) manual
+    # Pré-computação do dicionário em memória para otimização de busca O(1) manual
     # usando apenas hashlib unitário conforme permitido
     tabela_dicionario = {}
     for senha in senhas_dicionario:
