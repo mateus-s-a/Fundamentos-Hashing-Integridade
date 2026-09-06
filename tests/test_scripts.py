@@ -134,6 +134,18 @@ class TestFase2Scripts(unittest.TestCase):
         self.assertIn(f"{salt1.hex()}:{h2} -> 123456", res.stdout)
 
 
+    # Testa o script 'detector_colisao.py' (Fase 4 - Extra com Bônus)
+    def test_detector_colisao(self):
+        script = os.path.join(self.src_dir, "detector_colisao.py")
+        res = subprocess.run([sys.executable, script, "--amostras", "5000", "--tamanho-bytes", "10", "--algoritmo", "ambos"], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("EXPERIMENTO DE DETECÇÃO DE COLISÕES DE HASH", res.stdout)
+        self.assertIn("SHA1 (Obsoleto)", res.stdout)
+        self.assertIn("SHA256 (Seguro)", res.stdout)
+        self.assertIn("RESUMO COMPARATIVO", res.stdout)
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

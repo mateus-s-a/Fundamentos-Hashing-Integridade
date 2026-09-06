@@ -17,8 +17,8 @@ Este documento serve como roteiro técnico e planejamento estruturado para a exe
 ## 2. Cronograma Sugerido de Execução (02/09 a 07/09)
 
 * **02/09 (Quarta-feira):** Alinhamento inicial da dupla, criação do repositório no GitHub e **Fase 1 / Parte 1 Teórica (Lorena)**.
-* **03/09 e 04/09 (Quinta e Sexta-feira):** **Fase 2 / Parte 2 Desenvolvimento dos 4 Scripts em Python (Mateus)**.
-* **05/09 (Sábado):** **Fase 4 / Parte 4 Extra Bônus `detector_colisao.py` (Mateus)**.
+* **03/09 e 04/09 (Quinta e Sexta-feira):** **Fase 2 / Parte 2 Desenvolvimento dos 4 Scripts em Python (Mateus)**. `[CONCLUÍDO]`
+* **05/09 e 06/09 (Sábado e Domingo):** **Fase 4 / Parte 4 Extra Bônus `detector_colisao.py` (Mateus)**. `[CONCLUÍDO]`
 * **06/09 (Domingo):** **Fase 3 / Parte 3 Análise Comparativa, Métricas, KDF e Capturas de Tela (Lorena)**.
 * **07/09 (Segunda-feira):** **Fase 5 / Revisão Conjunta (Mateus & Lorena)** — Testes de fumaça, conferência do PDF (máx 5 páginas), empacotamento `.zip` e submissão final até às 23h59.
 
@@ -44,10 +44,10 @@ Este documento serve como roteiro técnico e planejamento estruturado para a exe
 
 ---
 
-### Fase 2: Implementações em Python — Parte 2 do Enunciado (**Responsável: MATEUS**)
+### Fase 2: Implementações em Python — Parte 2 do Enunciado (**Responsável: MATEUS**) — `[CONCLUÍDO]`
 * **Item 2.1 — `verificador_integridade.py`:**
   * Varredura e mapeamento recursivo de diretórios.
-  * Leitura eficiente em blocos (*chunks*) para suportar arquivos > 1 GB sem esgotar RAM.
+  * Leitura eficiente em blocos (*chunks* de 4096 bytes) para suportar arquivos > 1 GB sem esgotar RAM.
   * Cálculo de SHA-256 e salvamento no padrão `caminho:hash` em `hashes.txt`.
   * Modo `--verificar` com geração de relatório de status (novos, removidos, modificados e inalterados).
 * **Item 2.2 — `quebra_sem_salt.py`:**
@@ -65,21 +65,21 @@ Este documento serve como roteiro técnico e planejamento estruturado para a exe
 
 ---
 
+### Fase 4: Desafio Extra Opcional (Com Bônus) — Parte 4 do Enunciado (**Responsável: MATEUS**) — `[CONCLUÍDO]`
+* **Script `detector_colisao.py`:**
+  * Gerar 1.000.000 de strings aleatórias via `os.urandom(10)`.
+  * Calcular hashes no algoritmo SHA-1 (obsoleto) e reportar o total de colisões.
+  * Repetir o mesmo experimento substituindo o algoritmo por SHA-256 e comparar os resultados.
+* **Pergunta de Reflexão:** Redação da resposta técnica explicando a preferência pelo SHA-256 mesmo com colisões raras nessa escala documentada no `README.md`.
+
+---
+
 ### Fase 3: Análise Comparativa & Documentação — Parte 3 do Enunciado (**Responsável: LORENA**)
 * **Coleta e Formatação de Métricas:** Medição dos tempos de execução e contabilização das senhas quebradas nos cenários 2.2 e 2.4.
 * **Justificativa Analítica de Desempenho:** Redação sobre o motivo e impacto do salt na desaceleração dos ataques.
 * **Análise de Casos de Segurança:** Estudo detalhado dos cenários (mesmo salt vs salts diferentes para a mesma senha).
 * **Proposta de Evolução Conceitual:** Apresentação teórica de KDFs (PBKDF2/Argon2/bcrypt) para proteção de senhas.
 * **Evidências de Execução:** Organização e captura de telas (*prints*) de todas as execuções bem-sucedidas dos scripts criados pelo Mateus.
-
----
-
-### Fase 4: Desafio Extra Opcional (Com Bônus) — Parte 4 do Enunciado (**Responsável: MATEUS**)
-* **Script `detector_colisao.py`:**
-  * Gerar 1.000.000 de strings aleatórias via `os.urandom(10)`.
-  * Calcular hashes no algoritmo SHA-1 (obsoleto) e reportar o total de colisões.
-  * Repetir o mesmo experimento substituindo o algoritmo por SHA-256 e comparar os resultados.
-* **Pergunta de Reflexão:** Redação da resposta técnica explicando a preferência pelo SHA-256 mesmo com colisões raras nessa escala.
 
 ---
 
@@ -98,22 +98,28 @@ Este documento serve como roteiro técnico e planejamento estruturado para a exe
 Fundamentos-Hashing-Integridade/
 │
 ├── docs/
+│   ├── 2-Hashing_na_Cibersegurança.pdf
 │   ├── Atividade_Pratica_Seguranca_Hashing.pdf
 │   ├── Guia_Desenvolvimento_Hashing.md
 │   └── Relatorio_Tecnico_Final.pdf
 │
 ├── src/
+│   ├── __init__.py
 │   ├── verificador_integridade.py
 │   ├── quebra_sem_salt.py
 │   ├── cadastro_verificacao.py
 │   ├── quebra_com_salt.py
 │   └── detector_colisao.py
 │
-├── massas_de_dados/
-│   ├── hashes_sem_salt.txt
+├── dados/
+│   ├── hashes.txt
 │   ├── hashes_com_salt.txt
+│   ├── hashes_sem_salt.txt
 │   ├── senhas_comuns.txt
 │   └── usuarios.txt
+│
+├── tests/
+│   └── test_scripts.py
 │
 └── README.md (contendo link do GitHub)
 ```
