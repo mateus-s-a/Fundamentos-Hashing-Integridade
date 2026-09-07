@@ -68,7 +68,7 @@ Fundamentos-Hashing-Integridade/
 │   ├── 2-Hashing_na_Cibersegurança.pdf        # Slides conceituais do professor
 │   ├── Atividade_Pratica_Seguranca_Hashing.pdf # Enunciado oficial da atividade
 │   ├── Guia_Desenvolvimento_Hashing.md        # Roteiro e divisão de tarefas da dupla
-│   └── Relatorio_Tecnico_Final.pdf            # Relatório técnico final em PDF
+│   └── Relatorio.pdf                          # Relatório técnico final em PDF (Partes 1 e 3)
 │
 ├── src/                                       # Código-fonte autoral dos scripts
 │   ├── __init__.py
@@ -82,10 +82,11 @@ Fundamentos-Hashing-Integridade/
 │   ├── hashes.txt                             # Base gerada de integridade de arquivos
 │   ├── hashes_sem_salt.txt                    # Hashes SHA-256 alvo sem salt
 │   ├── hashes_com_salt.txt                    # Hashes alvo com salt (salt:hash)
-│   ├── senhas_comuns.txt                      # Dicionário de senhas comuns
+│   ├── senhas_comuns.txt                      # Dicionário expandido de senhas comuns
 │   └── usuarios.txt                           # Base de usuários gerada dinamicamente
 │
-├── tests/                                     # Suite de testes automatizados
+├── tests/                                     # Suite de testes e geradores
+│   ├── gerador_dados_teste.py                 # Gerador de massas de dados e wordlist expandida
 │   └── test_scripts.py                        # Testes unitários e de integração CLI
 │
 └── README.md                                  # Documentação técnica central
@@ -320,20 +321,26 @@ python3 src/detector_colisao.py --amostras 500000 --algoritmo sha1
 
 <br>
 
-## Testes Automatizados
+## Testes Automatizados e Gerador de Dados
 
-O projeto conta com uma suite de testes unitários e de integração em [tests/test_scripts.py](tests/test_scripts.py).
+O projeto conta com uma suite completa de testes unitários e de integração em [tests/test_scripts.py](tests/test_scripts.py), além de um gerador de massas de dados sintéticas em [tests/gerador_dados_teste.py](tests/gerador_dados_teste.py).
 
-Para executar todos os testes automatizados:
+### 1. Executar Suite de Testes Automatizados
 ```bash
 python3 -m unittest discover tests
 ```
 
-### Casos de Teste Validados:
+### 2. Gerar / Atualizar Massa de Dados Sintética
+Para regenerar o dicionário de 10.025 senhas e os arquivos de teste em `dados/`:
+```bash
+python3 tests/gerador_dados_teste.py
+```
+
+### Casos de Teste Validados pela Suite:
 1. **`test_verificador_integridade`:** Criação de ambiente temporário e validação exata dos quatro estados de arquivo (novos, removidos, modificados e inalterados).
 2. **`test_quebra_sem_salt`:** Validação da saída padronizada `hash:senha` e `hash:NAO_ENCONTRADA`.
 3. **`test_cadastro_verificacao`:** Cadastro de múltiplos usuários com a mesma senha (comprovando salts e hashes resultantes diferentes) e teste de login com credenciais válidas e inválidas.
-4. **`test_quebra_com_salt`:** Validação do ataque contra hashes com salt e verificação do funcionamento do cache de pré-computação.
+4. **`test_quebra_com_salt`:** Validação do ataque contra hashes com salt e verificação do funcionamento do cache de pré-computação para salts repetidos.
 5. **`test_detector_colisao`:** Execução automatizada do gerador e comparador de colisões SHA-1 vs SHA-256.
 
 <br>
