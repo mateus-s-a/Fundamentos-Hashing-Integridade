@@ -88,10 +88,6 @@ for i, pwd in enumerate(senhas_para_salt):
         
     alvos_com_salt.append((salt_escolhido, pwd))
     
-<<<<<<< HEAD
-=======
-    # Extra (corrigido para a lógica descrita)
->>>>>>> bb47b27e727a02ac25b6db032029226f3a50abec
     if i % 4 == 0: 
         alvos_com_salt.append((salts_reutilizaveis[0], pwd + "extra"))
 ```
