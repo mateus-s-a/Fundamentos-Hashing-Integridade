@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import hashlib
 import sys
 import os
 import hashlib
@@ -58,7 +57,7 @@ def quebrar_hashes_com_salt(caminho_hashes, caminho_dicionario):
 
     for salt_hex, hash_alvo in registros_alvo:
         
-        # Se o salt já foi pré-computado anteriormente no lote, reaproveita o dicionário
+        # Se o salt já foi pré-computado anteriormente no lote, reaproveitamos o dicionário
         if salt_hex in cache_salts:
             mapa_hash_senha = cache_salts[salt_hex]
             salts_reutilizados += 1

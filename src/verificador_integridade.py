@@ -115,7 +115,7 @@ def verificar_integridade(diretorio_alvo, caminho_hashes_base="dados/hashes.txt"
     print(f"\n[-] Arquivos Removidos ({len(removidos)}):")
     if removidos:
         for item in removidos:
-            print(f"    + {item} (Hash anterior: {hashes_salvos[item]})")
+            print(f"    - {item} (Hash anterior: {hashes_salvos[item]})")
     else:
         print("    (nenhum)")
     
@@ -123,8 +123,8 @@ def verificar_integridade(diretorio_alvo, caminho_hashes_base="dados/hashes.txt"
     if modificados:
         for item in modificados:
             print(f"    ! {item}")
-            print(f"      Hash anterior: {hashes_salvos[item]})")
-            print(f"      Hash atual: {hashes_atuais[item]})")
+            print(f"      Hash anterior: {hashes_salvos[item]}")
+            print(f"      Hash atual:    {hashes_atuais[item]}")
     else:
         print("    (nenhum)")
     
