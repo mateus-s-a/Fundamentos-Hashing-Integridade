@@ -3,6 +3,7 @@
 **Disciplina:** Segurança de sistema de computação
 **Professor:** Ruy de Oliveira
 **Grupo:** Mateus de Souza Arruda e Lorena Strobel Campos
+**Github:** Github: https://github.com/mateus-s-a/Fundamentos-Hashing-Integridade
 
 ## Conceitos Teóricos: Fundamentos de Hashing e Integridade de Dados (parte 1)
 
