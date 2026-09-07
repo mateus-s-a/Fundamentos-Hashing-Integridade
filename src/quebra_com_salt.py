@@ -58,7 +58,7 @@ def quebrar_hashes_com_salt(caminho_hashes, caminho_dicionario):
 
     for salt_hex, hash_alvo in registros_alvo:
         
-        # Se o salt já foi pré-computado anteriormente no lote, reaproveitamentos o dicionário
+        # Se o salt já foi pré-computado anteriormente no lote, reaproveita o dicionário
         if salt_hex in cache_salts:
             mapa_hash_senha = cache_salts[salt_hex]
             salts_reutilizados += 1
