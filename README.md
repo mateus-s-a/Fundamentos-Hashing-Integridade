@@ -1,2 +1,242 @@
 # Fundamentos-Hashing-Integridade
 Trabalho de Segurança de Sistemas Computacionais.
+# Fundamentos de Hashing e Integridade de Dados
+
+> **Disciplina:** Segurança em Sistemas Computacionais — IFMT  
+> **Tema:** Atividade Prática 1 — Fundamentos de Hashing e Integridade de Dados  
+> **Dupla de Desenvolvimento:** Mateus & Lorena  
+> **Data de Entrega:** 07/09/2026 até às 23h59  
+
+---
+
+## Visão Geral da Atividade
+
+Este repositório contém a implementação prática de ferramentas operacionais em Python desenvolvidas para verificação de integridade de sistemas de arquivos, simulação de módulos de autenticação seguros com *salts* criptográficos e análise de robustez de senhas contra ataques de dicionário e força bruta com pré-computação.
+
+Todo o código foi construído seguindo as restrições rígidas do enunciado do professor:
+* **Uso Unitário da Biblioteca `hashlib`:** A biblioteca é empregada exclusivamente para a operação matemática do cálculo de hash (`hashlib.sha256()`). Todas as lógicas de mapeamento, busca, comparação, estruturação de dados e geração de salts são autorais.
+* **Proibição de Ferramentas de Alto Nível:** Não foram utilizadas bibliotecas prontas como `passlib`, `bcrypt` ou softwares externos de cracking (`hashcat`, `john the ripper`).
+* **Eficiência de Memória:** Processamento de arquivos com leitura em blocos (*chunks* de 4 KB), suportando arquivos de grandes dimensões (> 1 GB) sem estouro de memória RAM.
+
+---
+
+## Estrutura do Repositório
+
+```text
+Fundamentos-Hashing-Integridade/
+│
+├── docs/
+│   ├── 2-Hashing_na_Cibersegurança.pdf        # Slides conceituais do professor
+│   ├── Atividade_Pratica_Seguranca_Hashing.pdf # Enunciado oficial da atividade
+│   ├── Guia_Desenvolvimento_Hashing.md        # Roteiro e divisão de tarefas da dupla
+│   └── Relatorio_Tecnico_Final.pdf            # Relatório técnico final em PDF
+│
+├── src/                                       # Código-fonte autoral dos scripts
+│   ├── __init__.py
+│   ├── verificador_integridade.py             # Item 2.1: Verificador de integridade de arquivos
+│   ├── quebra_sem_salt.py                     # Item 2.2: Quebra de hashes sem salt
+│   ├── cadastro_verificacao.py                # Item 2.3: Cadastro e login seguro com salt
+│   └── quebra_com_salt.py                     # Item 2.4: Quebra de hashes com salt (Bônus Cache)
+│
+├── massas_de_dados/                           # Massas de testes e dicionários
+│   ├── hashes_sem_salt.txt                    # Hashes SHA-256 alvo sem salt
+│   ├── hashes_com_salt.txt                    # Hashes alvo com salt (salt:hash)
+│   ├── senhas_comuns.txt                      # Dicionário de senhas comuns
+│   └── usuarios.txt                           # Base de usuários gerada dinamicamente
+│
+├── tests/                                     # Suite de testes automatizados
+│   └── test_scripts.py                        # Testes unitários e de integração CLI
+│
+└── README.md                                  # Documentação técnica central
+```
+
+---
+
+## Documentação Detalhada dos Scripts e Funções
+
+---
+
+### 1. `src/verificador_integridade.py` (Item 2.1)
+
+Script responsável por mapear recursivamente um diretório, computar o hash SHA-256 de cada arquivo e realizar a auditoria de integridade comparando o estado atual contra uma base salva anteriormente.
+
+#### Como Executar
+```bash
+# Modo 1: Mapear diretório e salvar estado em hashes.txt
+python3 src/verificador_integridade.py ./diretorio_alvo --base hashes.txt
+
+# Modo 2: Verificar integridade do diretório contra hashes.txt
+python3 src/verificador_integridade.py ./diretorio_alvo --verificar --base hashes.txt
+```
+
+#### Detalhamento das Funções Internas
+
+* **`calcular_hash_arquivo(caminho_arquivo, tamanho_bloco=4096)`**
+  * **Objetivo:** Calcula o hash SHA-256 de um arquivo de forma segura e eficiente.
+  * **Funcionamento:** Abre o arquivo em modo binário (`"rb"`) e consome os dados em blocos sucessivos de 4 KB através de `while bloco := arq.read(tamanho_bloco): sha256.update(bloco)`. Essa técnica (baseada nos slides de aula) impede que arquivos de múltiplos gigabytes sobrecarreguem a memória RAM.
+  * **Retorno:** *String* hexadecimal de 64 caracteres do hash SHA-256 ou `None` em caso de falha de permissão/leitura.
+
+* **`mapear_diretorio(diretorio_alvo, arquivo_hashes_ignorar=None)`**
+  * **Objetivo:** Percorre toda a árvore de diretórios a partir do caminho indicado.
+  * **Funcionamento:** Utiliza `os.walk()` para localizar todos os arquivos recursivamente. Converte caminhos absolutos para caminhos relativos padronizados e ignora automaticamente o arquivo de saída `hashes.txt` se ele estiver dentro do diretório inspecionado, evitando falsos positivos de alteração.
+  * **Retorno:** Dicionário `{caminho_relativo: hash_sha256}`.
+
+* **`salvar_hashes(hashes_dict, caminho_saida="hashes.txt")`**
+  * **Objetivo:** Grava a tabela de integridade em disco.
+  * **Funcionamento:** Escreve cada registro no formato estrito `caminho_do_arquivo:hash` ordenado alfabeticamente.
+
+* **`carregar_hashes_salvos(caminho_arquivo)`**
+  * **Objetivo:** Lê e decodifica o arquivo `hashes.txt` pré-existente.
+  * **Funcionamento:** Realiza o *parse* de cada linha ignorando linhas em branco e comentários iniciados com `#`.
+  * **Retorno:** Dicionário `{caminho_do_arquivo: hash_esperado}`.
+
+* **`verificar_integridade(diretorio_alvo, caminho_hashes_base="hashes.txt")`**
+  * **Objetivo:** Realiza o diagnóstico diferencial entre o estado salvo e o estado do sistema de arquivos atual.
+  * **Funcionamento:** Aplica operações de conjuntos (*set differences* e interseções) para classificar e exibir em quatro categorias:
+    * `Arquivos Novos`: presentes na pasta, mas ausentes na base.
+    * `Arquivos Removidos`: presentes na base, mas não mais encontrados no disco.
+    * `Arquivos Modificados`: presentes em ambos, porém com hashes divergentes.
+    * `Arquivos Inalterados`: presentes em ambos com hashes estritamente idênticos.
+
+* **`main()`**
+  * **Objetivo:** Gerencia a interface de linha de comando com `argparse`.
+
+---
+
+### 2. `src/quebra_sem_salt.py` (Item 2.2)
+
+Script que executa um ataque de dicionário manual sobre um conjunto de hashes SHA-256 desprovidos de *salt*.
+
+#### Como Executar
+```bash
+python3 src/quebra_sem_salt.py massas_de_dados/hashes_sem_salt.txt massas_de_dados/senhas_comuns.txt
+```
+
+#### Detalhamento das Funções Internas
+
+* **`carregar_linhas(caminho_arquivo)`**
+  * **Objetivo:** Carrega a lista de hashes alvo.
+  * **Funcionamento:** Lê o arquivo linha a linha, removendo espaços e quebras de linha nas extremidades e descartando linhas em branco.
+  * **Retorno:** Lista de hashes em formato de texto.
+
+* **`carregar_dicionario_senhas(caminho_arquivo)`**
+  * **Objetivo:** Carrega a *wordlist* de senhas comuns candidatas.
+  * **Funcionamento:** Realiza o tratamento com `rstrip("\r\n")`, preservando espaços em branco internos característicos de senhas válidas.
+  * **Retorno:** Lista com as senhas em texto puro.
+
+* **`quebrar_hashes_sem_salt(caminho_hashes, caminho_dicionario)`**
+  * **Objetivo:** Executa a busca e cruzamento dos hashes.
+  * **Funcionamento:** Calcula o hash SHA-256 unitário de cada palavra do dicionário via `hashlib.sha256(senha.encode('utf-8')).hexdigest()` e monta um mapa em memória. Em seguida, percorre os hashes alvo emitindo a saída exigida pelo professor:
+    * Se a senha foi identificada: `hash:senha_encontrada`
+    * Se a senha não foi identificada: `hash:NAO_ENCONTRADA`
+  * **Retorno:** Tupla `(quebradas, nao_encontradas, total_hashes)`.
+
+* **`main()`**
+  * **Objetivo:** Orquestra a execução via CLI e apresenta no `stderr` as estatísticas de tempo e taxa de sucesso do ataque.
+
+---
+
+### 3. `src/cadastro_verificacao.py` (Item 2.3)
+
+Módulo que implementa as boas práticas de armazenamento e conferência de credenciais utilizando *salts* aleatórios de 16 bytes.
+
+#### Como Executar
+```bash
+# Modo Cadastro de Usuário
+python3 src/cadastro_verificacao.py --cadastrar alice SenhaSegura@2026 --arquivo massas_de_dados/usuarios.txt
+
+# Modo Verificação de Login
+python3 src/cadastro_verificacao.py --verificar alice SenhaSegura@2026 --arquivo massas_de_dados/usuarios.txt
+```
+
+#### Detalhamento das Funções Internas
+
+* **`carregar_base_usuarios(caminho_arquivo)`**
+  * **Objetivo:** Lê a base de credenciais armazenada em disco.
+  * **Funcionamento:** Faz a leitura do arquivo `usuarios.txt` delimitado por dois pontos (`:`).
+  * **Retorno:** Dicionário `{usuario: (salt_hex, hash_hex)}`.
+
+* **`salvar_base_usuarios(usuarios_dict, caminho_arquivo)`**
+  * **Objetivo:** Salva o banco de credenciais de forma atômica e ordenada.
+  * **Funcionamento:** Grava cada usuário no padrão `usuario:salt_hex:hash_hex`. A senha em texto claro **nunca** é gravada em disco.
+
+* **`cadastrar_usuario(usuario, senha, caminho_arquivo="usuarios.txt")`**
+  * **Objetivo:** Registra um novo usuário com um *salt* exclusivo e criptograficamente seguro.
+  * **Funcionamento:**
+    1. Gera 16 bytes pseudoaleatórios imprevisíveis usando `os.urandom(16)`.
+    2. Concatena os bytes do salt aos bytes da senha (`salt_bytes + senha.encode('utf-8')`).
+    3. Calcula o hash SHA-256 da concatenação.
+    4. Converte o salt para representação hexadecimal (`salt.hex()`) e persiste no arquivo `usuarios.txt`.
+
+* **`verificar_autenticacao(usuario, senha, caminho_arquivo="usuarios.txt")`**
+  * **Objetivo:** Autentica um usuário que está tentando efetuar login.
+  * **Funcionamento:**
+    1. Localiza o usuário no banco de dados. Se não existir, emite imediatamente `"Acesso negado"`.
+    2. Recupera a representação hexadecimal do salt e converte de volta para bytes com `bytes.fromhex(salt_hex)`.
+    3. Concatena o salt recuperado com a senha informada na tentativa e calcula o hash SHA-256.
+    4. Compara o hash calculado com o hash gravado.
+    5. Se idênticos, imprime `"Acesso permitido"`; caso contrário, imprime `"Acesso negado"`.
+  * **Retorno:** Booleano indicando o status da autenticação (`True` ou `False`).
+
+* **`main()`**
+  * **Objetivo:** Define o grupo mutuamente exclusivo de argumentos de linha de comando (`--cadastrar` e `--verificar`).
+
+---
+
+### 4. `src/quebra_com_salt.py` (Item 2.4)
+
+Script desenvolvido para quebrar hashes que possuem *salt* conhecido (`salt_hex:hash_hex`), incorporando a solução do **Desafio Bônus de Pré-computação Otimizada**.
+
+#### Como Executar
+```bash
+python3 src/quebra_com_salt.py massas_de_dados/hashes_com_salt.txt massas_de_dados/senhas_comuns.txt
+```
+
+#### Detalhamento das Funções Internas
+
+* **`carregar_dicionario_senhas(caminho_arquivo)`**
+  * **Objetivo:** Carrega a lista de senhas comuns candidatas em memória.
+
+* **`carregar_hashes_com_salt(caminho_arquivo)`**
+  * **Objetivo:** Realiza o *parse* do arquivo de hashes protegidos por salt.
+  * **Funcionamento:** Separa cada linha em `salt_hex` e `hash_hex`.
+  * **Retorno:** Lista de tuplas `[(salt_hex, hash_hex), ...]`.
+
+* **`quebrar_hashes_com_salt(caminho_hashes, caminho_dicionario)`**
+  * **Objetivo:** Executa o ataque de força bruta inteligente com dicionário.
+  * **Implementação do Desafio Bônus:**
+    * Mantém uma estrutura de cache em memória indexada por `salt_hex`: `{salt_hex: {hash_gerado: senha}}`.
+    * Quando um salt inédito é processado, calcula o hash SHA-256 para todas as senhas da wordlist combinadas com aquele salt específico e armazena no cache.
+    * Caso o mesmo salt seja reutilizado em outros hashes do arquivo, o script reutiliza instantaneamente o dicionário já computado para aquele salt, evitando recálculos caros.
+  * **Formato de Saída:**
+    * `salt:hash -> senha_encontrada`
+    * `salt:hash -> NAO_ENCONTRADA`
+  * **Retorno:** Métricas contendo total de senhas quebradas, não encontradas, quantidade de salts únicos e contagem de reutilizações de cache.
+
+* **`main()`**
+  * **Objetivo:** Entrada CLI e apresentação dos dados de telemetria no `stderr`.
+
+---
+
+## Testes Automatizados
+
+O projeto conta com uma suite de testes unitários e de integração em [tests/test_scripts_fase2.py](tests/test_scripts_fase2.py).
+
+Para executar todos os testes automatizados:
+```bash
+python3 -m unittest discover tests
+```
+
+### Casos de Teste Validados:
+1. **`test_verificador_integridade`:** Criação de ambiente temporário e validação exata dos quatro estados de arquivo (novos, removidos, modificados e inalterados).
+2. **`test_quebra_sem_salt`:** Validação da saída padronizada `hash:senha` e `hash:NAO_ENCONTRADA`.
+3. **`test_cadastro_verificacao`:** Cadastro de múltiplos usuários com a mesma senha (comprovando salts e hashes resultantes diferentes) e teste de login com credenciais válidas e inválidas.
+4. **`test_quebra_com_salt`:** Validação do ataque contra hashes com salt e verificação do funcionamento do cache de pré-computação.
+
+---
+
+## Considerações de Segurança
+
+1. **Geração Criptográfica de Números Aleatórios:** O uso de `os.urandom(16)` assegura entropia proveniente do CSPRNG do sistema operacional (`/dev/urandom`), impedindo previsibilidade de salts.
+2. **Resistência a Rainbow Tables:** O acréscimo do salt de 16 bytes inviabiliza o uso de tabelas pré-computadas genéricas, obrigando o invasor a computar o dicionário individualmente para cada salt distinto.
+3. **Persistência de Dados:** O sistema armazena apenas representações hexadecimais de hashes e salts, garantindo que mesmo diante de um vazamento total da base `usuarios.txt`, as senhas em texto claro permaneçam inacessíveis.
