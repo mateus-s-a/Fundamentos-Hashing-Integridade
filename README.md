@@ -321,6 +321,25 @@ python3 src/detector_colisao.py --amostras 500000 --algoritmo sha1
 
 <br>
 
+## Justificativas de Escolha de Código e Decisões de Projeto
+
+Decisões arquiteturais e as justificativas técnicas adotadas no desenvolvimento dos códigos conforme esclarecido no enunciado da atividade, sendo de requerimento obrigatório:
+
+| Script / Componente | Decisão Técnica Adotada | Motivação e Justificativa | Impacto / Benefício |
+| :--- | :--- | :--- | :--- |
+| **`verificador_integridade.py`** | Leitura particionada em blocos de 4 KB (`tamanho_bloco=4096`) | Evita carregar o conteúdo integral do arquivo na memória RAM | Previne travamentos (*Out-of-Memory* / DoS) ao processar arquivos de múltiplos gigabytes (ex: imagens ISO, dumps de banco). |
+| **`quebra_sem_salt.py`** | Pré-computação do dicionário em Tabela Hash em memória (`{hash: senha}`) | Redução da complexidade algorítmica de busca para $O(1)$ após carga única | Transforma o custo temporal do ataque de $O(N \times M)$ para $O(N + M)$, quebrando centenas de hashes instantaneamente. |
+| **`cadastro_verificacao.py`** | Geração de salt com `os.urandom(16)` (16 bytes / 128 bits) | Uso de CSPRNG do kernel do SO (`/dev/urandom`), eliminando pseudoaleatoriedade previsível (`random.randint`) | Inviabiliza criação de Rainbow Tables globais e garante unicidade criptográfica com $2^{128}$ combinações por senha. |
+| **`quebra_com_salt.py`** | Cache dinâmico de hashes por salt reutilizado (`{salt: {hash: senha}}`) | Implementação do Desafio Bônus: computa o dicionário com salt uma única vez por salt distinto | Reduz o processamento redundante a zero caso múltiplos usuários compartilhem o mesmo salt na base. |
+| **`detector_colisao.py`** | Utilização de buffers de bytes puros (`.digest()`) na tabela de colisões | Strings hexadecimais ocupam mais que o dobro de memória comparadas a bytes brutos | Permite indexar e testar 1.000.000 de amostras em memória RAM padrão sem sobrecarga no interpretador Python. |
+| **Todos os Scripts** | Ausência de frameworks de alto nível (`bcrypt`, `hashcat`) e uso exclusivo de `hashlib` | Cumprimento rigoroso das restrições acadêmicas da disciplina | Garantia de implementação 100% autoral das estruturas de dados e regras de negócio criptográficas. |
+
+<br>
+
+---
+
+<br>
+
 ## Testes Automatizados e Gerador de Dados
 
 O projeto conta com uma suite completa de testes unitários e de integração em [tests/test_scripts.py](tests/test_scripts.py), além de um gerador de massas de dados sintéticas em [tests/gerador_dados_teste.py](tests/gerador_dados_teste.py).
