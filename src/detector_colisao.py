@@ -12,7 +12,7 @@ def gerar_amostra_aleatoria(tamanho_bytes=10):
 
 
 
-def testar_colisoes_algoritmo(nome_algoritmo, total_amostras=1000000, tamanho_bytes=10):
+def testar_colisoes_algoritmo(nome_algoritmo, total_amostras=1000000, tamanho_bytes=10, truncar_bytes=0):
     mapa_hashes = {}
     colisoes = []
 
@@ -27,6 +27,9 @@ def testar_colisoes_algoritmo(nome_algoritmo, total_amostras=1000000, tamanho_by
             hash_digest = hashlib.sha256(amostra).digest()
         else:
             hash_digest = hashlib.new(nome_algoritmo, amostra).digest()
+        
+        if truncar_bytes > 0:
+            hash_digest = hash_digest[:truncar_bytes]
         
         if hash_digest in mapa_hashes:
             amostra_existente = mapa_hashes[hash_digest]
@@ -45,17 +48,19 @@ def testar_colisoes_algoritmo(nome_algoritmo, total_amostras=1000000, tamanho_by
         "total_colisoes": len(colisoes),
         "colisoes": colisoes,
         "tempo_segundos": tempo_decorrido,
+        "truncar_bytes": truncar_bytes,
     }
 
 
 
-def exibir_relatorio_experimento(resultados, tamanho_bytes=10):
+def exibir_relatorio_experimento(resultados, tamanho_bytes=10, truncar_bytes=0):
     print("="*65)
     print("           EXPERIMENTO DE DETECÇÃO DE COLISÕES DE HASH")
     print("="*65)
 
     total_amostras = resultados[0]["total_amostras"]
-    print(f"[*] Parâmetros: {total_amostras:,} amostras | {tamanho_bytes} bytes aleatórios por amostra\n")
+    trunc_info = f" | Hash truncado em {truncar_bytes} bytes ({truncar_bytes * 8} bits)" if truncar_bytes > 0 else ""
+    print(f"[*] Parâmetros: {total_amostras:,} amostras | {tamanho_bytes} bytes aleatórios por amostra{trunc_info}\n")
 
     for i, res in enumerate(resultados, start=1):
         alg = res["algoritmo"]
@@ -64,10 +69,10 @@ def exibir_relatorio_experimento(resultados, tamanho_bytes=10):
         print(f"    - Tempo de execução:       {res['tempo_segundos']:.4f} s")
         print(f"    - Hashes processados:      {res['total_amostras']:,}")
         print(f"    - Hashes únicos:           {res['hashes_unicos']:,}")
-        print(f"    - Colisões detectadas:     {res['total_colisoes']}")
+        print(f"    - Colisões detectadas:     {res['total_colisoes']:,}")
 
         if res["total_colisoes"] > 0:
-            print("    [!] Detalhes das colisões:")
+            print("    [!] Detalhes das primeiras colisões encontradas:")
             for c in res["colisoes"][:5]:
                 print(f"        - Entrada 1: {c[0].hex()} | Entrada 2: {c[1].hex()} -> Hash: {c[2]}")
         print()
@@ -76,7 +81,7 @@ def exibir_relatorio_experimento(resultados, tamanho_bytes=10):
     print("="*65)
     print("RESUMO COMPARATIVO:")
     for res in resultados:
-        print(f"  - {res['algoritmo']:<7}: {res['total_amostras']:,} hashes em {res['tempo_segundos']:.4f}s | {res['total_colisoes']} colisões")
+        print(f"  - {res['algoritmo']:<7}: {res['total_amostras']:,} hashes em {res['tempo_segundos']:.4f}s | {res['total_colisoes']:,} colisões")
     print("="*65)
 
 
@@ -104,19 +109,25 @@ def main():
         default="ambos",
         help="Algoritmo a ser testado: sha1, sha256 ou ambos (padrão: ambos)"
     )
+    parser.add_argument(
+        "--truncar-bytes", "-t",
+        type=int,
+        default=0,
+        help="Opcional: Truncar o digest de saída para N bytes para demonstrar colisões do Paradoxo do Aniversário (padrão: 0 = sem truncamento)"
+    )
 
     args = parser.parse_args()
     resultados = []
     
     if args.algoritmo in ["sha1", "ambos"]:
-        res_sha1 = testar_colisoes_algoritmo("sha1", total_amostras=args.amostras, tamanho_bytes=args.tamanho_bytes)
+        res_sha1 = testar_colisoes_algoritmo("sha1", total_amostras=args.amostras, tamanho_bytes=args.tamanho_bytes, truncar_bytes=args.truncar_bytes)
         resultados.append(res_sha1)
     
     if args.algoritmo in ["sha256", "ambos"]:
-        res_sha256 = testar_colisoes_algoritmo("sha256", total_amostras=args.amostras, tamanho_bytes=args.tamanho_bytes)
+        res_sha256 = testar_colisoes_algoritmo("sha256", total_amostras=args.amostras, tamanho_bytes=args.tamanho_bytes, truncar_bytes=args.truncar_bytes)
         resultados.append(res_sha256)
     
-    exibir_relatorio_experimento(resultados, tamanho_bytes=args.tamanho_bytes)
+    exibir_relatorio_experimento(resultados, tamanho_bytes=args.tamanho_bytes, truncar_bytes=args.truncar_bytes)
 
 
 

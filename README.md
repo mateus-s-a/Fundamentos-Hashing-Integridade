@@ -290,6 +290,10 @@ python3 src/detector_colisao.py
 # Execução customizada com número menor/maior de amostras ou algoritmo específico
 python3 src/detector_colisao.py --amostras 1000000 --tamanho-bytes 10 --algoritmo ambos
 python3 src/detector_colisao.py --amostras 500000 --algoritmo sha1
+
+# Demonstração empírica de colisões via truncamento de digest (Paradoxo do Aniversário)
+python3 src/detector_colisao.py --amostras 50000 --truncar-bytes 3 --algoritmo ambos
+python3 src/detector_colisao.py --amostras 100000 --truncar-bytes 4 --algoritmo ambos
 ```
 
 #### Detalhamento das Funções Internas
@@ -299,21 +303,22 @@ python3 src/detector_colisao.py --amostras 500000 --algoritmo sha1
   * **Funcionamento:** Utiliza `os.urandom(tamanho_bytes)` para obter sequências de bytes com alta entropia.
   * **Retorno:** Objeto `bytes` de tamanho especificado.
 
-* **`testar_colisoes_algoritmo(nome_algoritmo, total_amostras=1000000, tamanho_bytes=10)`**
+* **`testar_colisoes_algoritmo(nome_algoritmo, total_amostras=1000000, tamanho_bytes=10, truncar_bytes=0)`**
   * **Objetivo:** Executa a bateria de testes de colisão e mede a eficiência temporal.
   * **Funcionamento:**
     1. Itera gerando `total_amostras` entradas aleatórias.
     2. Calcula o hash no formato de bytes brutos (`.digest()`), reduzindo o consumo de memória RAM pela metade em relação a strings hexadecimais.
-    3. Indexa os hashes em um dicionário `{hash_digest: amostra_bytes}`.
-    4. Caso um hash repetido seja encontrado, compara as entradas para comprovar colisão genuína (`amostra_anterior != amostra_atual`).
-    5. Mede o tempo decorrido com precisão de milissegundos.
-  * **Retorno:** Dicionário com estatísticas consolidadas (`total_amostras`, `hashes_unicos`, `total_colisoes`, `tempo_segundos`).
+    3. Permite truncamento opcional para $t$ bytes (`digest[:truncar_bytes]`) para demonstrar o Paradoxo do Aniversário em tempo real.
+    4. Indexa os hashes em um dicionário `{hash_digest: amostra_bytes}`.
+    5. Caso um hash repetido seja encontrado, compara as entradas para comprovar colisão genuína (`amostra_anterior != amostra_atual`).
+    6. Mede o tempo decorrido com precisão de milissegundos.
+  * **Retorno:** Dicionário com estatísticas consolidadas (`total_amostras`, `hashes_unicos`, `total_colisoes`, `tempo_segundos`, `truncar_bytes`).
 
-* **`exibir_relatorio_experimento(resultados, tamanho_bytes=10)`**
+* **`exibir_relatorio_experimento(resultados, tamanho_bytes=10, truncar_bytes=0)`**
   * **Objetivo:** Formata e imprime na tela o relatório comparativo e a tabela de resumo dos testes.
 
 * **`main()`**
-  * **Objetivo:** Gerencia argumentos de CLI com `argparse` (`--amostras`, `--tamanho-bytes`, `--algoritmo`).
+  * **Objetivo:** Gerencia argumentos de CLI com `argparse` (`--amostras`, `--tamanho-bytes`, `--algoritmo`, `--truncar-bytes`).
 
 <br>
 

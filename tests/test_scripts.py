@@ -144,6 +144,12 @@ class TestFase2Scripts(unittest.TestCase):
         self.assertIn("SHA256 (Seguro)", res.stdout)
         self.assertIn("RESUMO COMPARATIVO", res.stdout)
 
+        # Valida modo de truncamento para demonstração prática de colisões
+        res_trunc = subprocess.run([sys.executable, script, "--amostras", "5000", "--truncar-bytes", "2", "--algoritmo", "sha256"], capture_output=True, text=True)
+        self.assertEqual(res_trunc.returncode, 0)
+        self.assertIn("Hash truncado em 2 bytes", res_trunc.stdout)
+        self.assertIn("Detalhes das primeiras colisões encontradas", res_trunc.stdout)
+
 
 
 
