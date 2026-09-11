@@ -382,3 +382,16 @@ python3 tests/gerador_dados_teste.py
    * Pelo **Paradoxo do Aniversário**, a busca aleatória de colisões no SHA-1 exige em média $2^{80} \approx 1,2 \times 10^{24}$ operações, tornando colisões espontâneas extremamente improváveis em 1.000.000 ($10^6$) de amostras aleatórias.
    * Contudo, ataques criptoanalíticos direcionados modernos (como o ataque **SHAttered** do Google/CWI em 2017) reduziram a complexidade teórica do SHA-1 para $2^{63}$ operações, tornando-o matematicamente quebrado contra ataques de colisão com prefixo escolhido (*chosen-prefix collision*).
    * O **SHA-256**, por sua vez, possui resistência teórica a colisões de $2^{128} \approx 3,4 \times 10^{38}$ operações e não possui fraquezas conhecidas, sendo indispensável para qualquer aplicação moderna de integridade e assinaturas digitais.
+
+
+<br>
+
+---
+
+<br>
+
+## Referência Principal (livro)
+
+> STALLINGS, William. Criptografia e Segurança de Redes: princípios e práticas. 6ª Ed. São
+>
+> Paulo: Pearson Education, 2014
